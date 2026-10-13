@@ -1,21 +1,14 @@
-# Шаблон проекта на C# для студентов
+# Интерпретируемый язык программирования Nixie
 
-Шаблон предназначен для .NET 10 (C# 14): https://dotnet.microsoft.com/en-us/download/dotnet/10.0
+Проект предназначен для .NET 10 (C# 14): https://dotnet.microsoft.com/en-us/download/dotnet/10.0
 
 ## Клонирование проекта
 
-Клонирование без авторизации в SourceCraft:
+Клонирование без авторизации в GitHub:
 
 ```bash
-# Клонируем репозиторий в каталог compiler/
-git clone https://git@git.sourcecraft.dev/sshambir-public/compiler-template.git compiler
-```
-
-Если у вас есть аккаунт SourceCraft и вы настроили SSH-ключи, то можно клонировать по SSH:
-
-```bash
-# Клонируем репозиторий в каталог compiler/
-git clone ssh://ssh.sourcecraft.dev/sshambir-public/compiler-template.git compiler
+# Клонируем репозиторий в каталог nixie/
+git clone https://github.com/volgacode/nixie nixie
 ```
 
 ## Сборка
@@ -44,7 +37,6 @@ scripts/run-tests-with-coverage
 
 1. Файл `*.slnx` (Solution) — основной файл «решения» (то есть проекта), обычно один на репозиторий с кодом
 2. Файл `*.csproj` (C# Project) — файл с описанием одного Assembly (_рус._ Сборка), компилируется в один DLL
-3. Файл `*.dll` — содержит машинный код для виртуальной машины .NET
     - Расширение `*.dll` также используется для разделяемых библиотек в ОС Windows; в Linux аналогом являются файлы `*.so` (shared library)
 
 Код на C# компилируется в MSIL — код виртуальной машины платформы .NET. Такой код сохраняется в файлах `.dll` для всех платформ, где работает .NET.
@@ -55,28 +47,16 @@ scripts/run-tests-with-coverage
 # Создаём Solution (основной проект).
 dotnet new sln
 
-# Создаём библиотеку ExampleLib в каталоге src/ и добавляем её в Solution
-dotnet new classlib -o src/ExampleLib
-dotnet sln add src/ExampleLib/
+# Создаём библиотеку Nexie.Lexer в каталоге src/ и добавляем её в Solution
+dotnet new classlib -o src/Nexie.Lexer
+dotnet sln add src/Nexie.Lexer/
 
 # Создаём проект модульных тестов на тестовом фреймворке XUnit
-dotnet new xunit -o tests/ExampleLib.UnitTests
+dotnet new xunit -o tests/Nexie.Lexer.UnitTests
 dotnet sln add tests/ExampleLib.UnitTests/
 
 # Добавляем проекту тестов ссылку на проект
-dotnet add tests/ExampleLib.UnitTests/ reference src/ExampleLib/
-```
-
-Как только библиотека ExampleLib станет вам не нужна, вы должны удалить её из проекта командами:
-
-```bash
-# Удаляем ExampleLib и тесты из файла решения
-dotnet sln remove src/ExampleLib/
-dotnet sln remove tests/ExampleLib.UnitTests/
-
-# Удаляем ExampleLib и тесты с диска и из системы контроля версий
-git rm -r src/ExampleLib/
-git rm -r tests/ExampleLib.UnitTests/
+dotnet add tests/Nexie.Lexer.UnitTests/ reference src/Nexie.Lexer/
 ```
 
 ## Статический анализ
