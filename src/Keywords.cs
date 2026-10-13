@@ -19,7 +19,7 @@ public static class Keywords
         { "struct", TokenType.Struct },
         { "true", TokenType.True },
         { "false", TokenType.False },
-        { "null", TokenType.Null }
+        { "null", TokenType.Null },
     };
 
     public static bool TryGetKeyword(string text, out TokenType tokenType)
