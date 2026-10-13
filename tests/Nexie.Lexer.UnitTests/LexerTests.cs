@@ -203,6 +203,28 @@ public class LexerTests
     }
 
     [Fact]
+    public void NextToken_ShouldHandleUnterminatedMultiLineCommentAtEof()
+    {
+        string source = "/* Незакрытый комментарий до конца файла";
+        Lexer lexer = new Lexer(source);
+        Token token = lexer.NextToken();
+
+        token.Type.Should().Be(TokenType.Eof);
+    }
+
+    [Theory]
+    [InlineData("переменная")]
+    [InlineData("тест")]
+    public void NextToken_ShouldReturnError_OnNonAsciiIdentifier(string source)
+    {
+        Lexer lexer = new Lexer(source);
+        Token token = lexer.NextToken();
+
+        token.Type.Should().Be(TokenType.Error);
+        token.ErrorMessage.Should().Contain("Unexpected character");
+    }
+
+    [Fact]
     public void NextToken_ShouldReturnError_OnSingleAmpersand()
     {
         Lexer lexer = new Lexer("&");
