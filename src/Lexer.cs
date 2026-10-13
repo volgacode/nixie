@@ -16,6 +16,73 @@ public class Lexer
 
     private bool IsAtEnd => _cursor >= _source.Length;
 
+    public Token NextToken()
+    {
+        SkipWhitespaceAndComments();
+
+        if (IsAtEnd)
+        {
+            return new Token(TokenType.Eof, string.Empty, new SourceLocation(_line, _column));
+        }
+
+        char c = Advance();
+
+        if (char.IsLetter(c) || c == '_')
+        {
+            return ScanIdentifierOrKeyword();
+        }
+
+        if (char.IsDigit(c))
+        {
+            return ScanNumber();
+        }
+
+        if (c == '"')
+        {
+            return ScanString();
+        }
+
+        return c switch
+        {
+            '=' => Match('=') ? MakeToken(TokenType.Equal, 2) : MakeToken(TokenType.Assign, 1),
+            '!' => Match('=') ? MakeToken(TokenType.NotEqual, 2) : MakeToken(TokenType.Not, 1),
+            '<' => Match('=') ? MakeToken(TokenType.LessOrEqual, 2) : MakeToken(TokenType.Less, 1),
+            '>' => Match('=') ? MakeToken(TokenType.GreaterOrEqual, 2) : MakeToken(TokenType.Greater, 1),
+            '&' => Match('&') ? MakeToken(TokenType.And, 2) : MakeError("Unexpected character '&', expected '&&'"),
+            '|' => Match('|') ? MakeToken(TokenType.Or, 2) : MakeError("Unexpected character '|', expected '||'"),
+            '+' => MakeToken(TokenType.Plus, 1),
+            '-' => MakeToken(TokenType.Minus, 1),
+            '*' => MakeToken(TokenType.Star, 1),
+            '/' => MakeToken(TokenType.Slash, 1),
+            '.' => MakeToken(TokenType.Dot, 1),
+            '[' => MakeToken(TokenType.LBracket, 1),
+            ']' => MakeToken(TokenType.RBracket, 1),
+            '(' => MakeToken(TokenType.LParen, 1),
+            ')' => MakeToken(TokenType.RParen, 1),
+            '{' => MakeToken(TokenType.LBrace, 1),
+            '}' => MakeToken(TokenType.RBrace, 1),
+            ',' => MakeToken(TokenType.Comma, 1),
+            ';' => MakeToken(TokenType.Semicolon, 1),
+            _ => MakeError($"Unexpected character: {c}"),
+        };
+    }
+
+    public List<Token> TokenizeAll()
+    {
+        List<Token> tokens = new List<Token>();
+        while (true)
+        {
+            Token token = NextToken();
+            tokens.Add(token);
+            if (token.Type is TokenType.Eof or TokenType.Error)
+            {
+                break;
+            }
+        }
+
+        return tokens;
+    }
+
     private char Peek() => IsAtEnd ? '\0' : _source[_cursor];
 
     private char PeekNext() => (_cursor + 1 >= _source.Length) ? '\0' : _source[_cursor + 1];
@@ -102,57 +169,6 @@ public class Lexer
         }
     }
 
-    public Token NextToken()
-    {
-        SkipWhitespaceAndComments();
-
-        if (IsAtEnd)
-        {
-            return new Token(TokenType.Eof, string.Empty, new SourceLocation(_line, _column));
-        }
-
-        char c = Advance();
-
-        if (char.IsLetter(c) || c == '_')
-        {
-            return ScanIdentifierOrKeyword();
-        }
-
-        if (char.IsDigit(c))
-        {
-            return ScanNumber();
-        }
-
-        if (c == '"')
-        {
-            return ScanString();
-        }
-
-        return c switch
-        {
-            '=' => Match('=') ? MakeToken(TokenType.Equal, 2) : MakeToken(TokenType.Assign, 1),
-            '!' => Match('=') ? MakeToken(TokenType.NotEqual, 2) : MakeToken(TokenType.Not, 1),
-            '<' => Match('=') ? MakeToken(TokenType.LessOrEqual, 2) : MakeToken(TokenType.Less, 1),
-            '>' => Match('=') ? MakeToken(TokenType.GreaterOrEqual, 2) : MakeToken(TokenType.Greater, 1),
-            '&' => Match('&') ? MakeToken(TokenType.And, 2) : MakeError("Unexpected character '&', expected '&&'"),
-            '|' => Match('|') ? MakeToken(TokenType.Or, 2) : MakeError("Unexpected character '|', expected '||'"),
-            '+' => MakeToken(TokenType.Plus, 1),
-            '-' => MakeToken(TokenType.Minus, 1),
-            '*' => MakeToken(TokenType.Star, 1),
-            '/' => MakeToken(TokenType.Slash, 1),
-            '.' => MakeToken(TokenType.Dot, 1),
-            '[' => MakeToken(TokenType.LBracket, 1),
-            ']' => MakeToken(TokenType.RBracket, 1),
-            '(' => MakeToken(TokenType.LParen, 1),
-            ')' => MakeToken(TokenType.RParen, 1),
-            '{' => MakeToken(TokenType.LBrace, 1),
-            '}' => MakeToken(TokenType.RBrace, 1),
-            ',' => MakeToken(TokenType.Comma, 1),
-            ';' => MakeToken(TokenType.Semicolon, 1),
-            _ => MakeError($"Unexpected character: {c}"),
-        };
-    }
-
     private Token ScanIdentifierOrKeyword()
     {
         int start = _cursor - 1;
@@ -227,21 +243,5 @@ public class Lexer
     private Token MakeError(string message)
     {
         return new Token(TokenType.Error, string.Empty, new SourceLocation(_line, _column), message);
-    }
-
-    public List<Token> TokenizeAll()
-    {
-        List<Token> tokens = new List<Token>();
-        while (true)
-        {
-            Token token = NextToken();
-            tokens.Add(token);
-            if (token.Type is TokenType.Eof or TokenType.Error)
-            {
-                break;
-            }
-        }
-
-        return tokens;
     }
 }

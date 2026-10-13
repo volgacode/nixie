@@ -41,6 +41,6 @@ public static class TokenTypeExtensions
         TokenType.RBrace => "}",
         TokenType.Comma => ",",
         TokenType.Semicolon => ";",
-        _ => string.Empty
+        _ => string.Empty,
     };
 }
