@@ -27,12 +27,12 @@ public class Lexer
 
         char c = Advance();
 
-        if (char.IsLetter(c) || c == '_')
+        if (IsAsciiLetter(c) || c == '_')
         {
             return ScanIdentifierOrKeyword();
         }
 
-        if (char.IsDigit(c))
+        if (IsAsciiDigit(c))
         {
             return ScanNumber();
         }
@@ -82,6 +82,12 @@ public class Lexer
 
         return tokens;
     }
+
+    private static bool IsAsciiLetter(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+
+    private static bool IsAsciiDigit(char c) => c >= '0' && c <= '9';
+
+    private static bool IsAsciiLetterOrDigit(char c) => IsAsciiLetter(c) || IsAsciiDigit(c);
 
     private char Peek() => IsAtEnd ? '\0' : _source[_cursor];
 
@@ -172,7 +178,7 @@ public class Lexer
     private Token ScanIdentifierOrKeyword()
     {
         int start = _cursor - 1;
-        while (char.IsLetterOrDigit(Peek()) || Peek() == '_')
+        while (IsAsciiLetterOrDigit(Peek()) || Peek() == '_')
         {
             Advance();
         }
@@ -187,7 +193,7 @@ public class Lexer
     private Token ScanNumber()
     {
         int start = _cursor - 1;
-        while (char.IsDigit(Peek()))
+        while (IsAsciiDigit(Peek()))
         {
             Advance();
         }

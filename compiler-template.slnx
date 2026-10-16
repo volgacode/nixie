@@ -4,7 +4,6 @@
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/Nexie.Lexer.UnitTests/">
-    <File Path="LexerTests.cs" />
     <File Path="LexerTests.csproj" />
     <Project Path="tests/Nexie.Lexer.UnitTests/LexerTests.csproj" />
   </Folder>
