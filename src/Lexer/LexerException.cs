@@ -18,11 +18,11 @@ public class LexerException : Exception
     {
     }
 
-    public LexerException(string message, SourceLocation location)
-        : base($"{message} at {location}")
+    public LexerException(string message, SourcePosition Position)
+        : base($"{message} at {Position}")
     {
-        Location = location;
+        Position = Position;
     }
 
-    public SourceLocation Location { get; }
+    public SourcePosition Position { get; }
 }

@@ -22,7 +22,7 @@ public class Lexer
 
         if (IsAtEnd)
         {
-            return new Token(TokenType.Eof, string.Empty, new SourceLocation(_line, _column));
+            return new Token(TokenType.Eof, string.Empty, new SourcePosition(_line, _column));
         }
 
         char c = Advance();
@@ -187,7 +187,7 @@ public class Lexer
         TokenType kwType;
         TokenType type = Keywords.TryGetKeyword(text, out kwType) ? kwType : TokenType.Identifier;
 
-        return new Token(type, text, new SourceLocation(_line, _column - text.Length));
+        return new Token(type, text, new SourcePosition(_line, _column - text.Length));
     }
 
     private Token ScanNumber()
@@ -199,7 +199,7 @@ public class Lexer
         }
 
         string text = _source[start.._cursor];
-        return new Token(TokenType.Number, text, new SourceLocation(_line, _column - text.Length));
+        return new Token(TokenType.Number, text, new SourcePosition(_line, _column - text.Length));
     }
 
     private Token ScanString()
@@ -214,7 +214,7 @@ public class Lexer
             {
                 Advance();
                 string lexeme = _source[start.._cursor];
-                return new Token(TokenType.StringValue, lexeme, new SourceLocation(_line, _column - lexeme.Length));
+                return new Token(TokenType.StringValue, lexeme, new SourcePosition(_line, _column - lexeme.Length));
             }
 
             if (c == '\\')
@@ -243,11 +243,11 @@ public class Lexer
     private Token MakeToken(TokenType type, int length)
     {
         string lexeme = _source[(_cursor - length).._cursor];
-        return new Token(type, lexeme, new SourceLocation(_line, _column - length));
+        return new Token(type, lexeme, new SourcePosition(_line, _column - length));
     }
 
     private Token MakeError(string message)
     {
-        return new Token(TokenType.Error, string.Empty, new SourceLocation(_line, _column), message);
+        return new Token(TokenType.Error, string.Empty, new SourcePosition(_line, _column), message);
     }
 }
