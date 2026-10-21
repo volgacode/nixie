@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Nixie.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/Nixie.UnitTests/">
+    <File Path="Nixie.UnitTests.csproj" />
+    <Project Path="tests/Nixie.UnitTests/Nixie.UnitTests.csproj" />
+  </Folder>
+</Solution>

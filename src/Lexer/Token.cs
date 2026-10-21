@@ -3,12 +3,12 @@
 public readonly record struct Token(
     TokenType Type,
     string Lexeme,
-    SourceLocation Location,
-    string ErrorMessage = ""
+    SourcePosition Position,
+    string? ErrorMessage = null
 )
 {
     public override string ToString() =>
         Type == TokenType.Error
-            ? $"Error at {Location}: {ErrorMessage}"
-            : $"{Type} ('{Lexeme}') at {Location}";
+            ? $"Error at {Position}: {ErrorMessage}"
+            : $"{Type} ('{Lexeme}') at {Position}";
 }
