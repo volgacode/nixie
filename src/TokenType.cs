@@ -65,19 +65,19 @@ public enum TokenType
     /// <summary>Оператор сравнения на неравенство (!=).</summary>
     NotEqual,
 
-    /// <summary>Оператор "меньше" (&lt;).</summary>
+    /// <summary>Оператор "меньше" (<).</summary>
     Less,
 
-    /// <summary>Оператор "меньше или равно" (&lt;=).</summary>
+    /// <summary>Оператор "меньше или равно" (<=).</summary>
     LessOrEqual,
 
-    /// <summary>Оператор "больше" (&gt;).</summary>
+    /// <summary>Оператор "больше" (>).</summary>
     Greater,
 
-    /// <summary>Оператор "больше или равно" (&gt;=).</summary>
+    /// <summary>Оператор "больше или равно" (>=).</summary>
     GreaterOrEqual,
 
-    /// <summary>Логическое "И" (&amp;&amp;).</summary>
+    /// <summary>Логическое "И" (&&).</summary>
     And,
 
     /// <summary>Логическое "ИЛИ" (||).</summary>
@@ -95,7 +95,7 @@ public enum TokenType
     /// <summary>Арифметический оператор умножения (*).</summary>
     Star,
 
-    /// <summary>Арифметический оператор деления (/compensate/slash).</summary>
+    /// <summary>Арифметический оператор деления (/).</summary>
     Slash,
 
     /// <summary>Оператор доступа к члену через точку (.).</summary>
