@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Nixie.Lexer;
+﻿namespace Nixie.Lexer;
 
 public static class Keywords
 {
