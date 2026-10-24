@@ -118,7 +118,12 @@ public class Lexer
 
     private char PeekNext()
     {
-        throw new NotImplementedException();
+        if (_index + 1 >= _source.Length)
+        {
+            return '\0';
+        }
+
+        return _source[_index + 1];
     }
 
     private char Advance()
@@ -149,9 +154,71 @@ public class Lexer
         return true;
     }
 
-    private void SkipWhitespaceAndComments()
+    private Token? SkipWhitespaceAndComments()
     {
-        throw new NotImplementedException();
+        while (!IsAtEnd)
+        {
+            char c = Peek();
+
+            switch (c)
+            {
+                case ' ':
+                case '\t':
+                case '\r':
+                case '\n':
+                case '\f':
+                    Advance();
+                    break;
+
+                case '/':
+                    if (PeekNext() == '/')
+                    {
+                        Advance();
+                        Advance();
+
+                        while (!IsAtEnd && Peek() != '\n')
+                        {
+                            Advance();
+                        }
+                    }
+                    else if (PeekNext() == '*')
+                    {
+                        BeginToken();
+                        Advance();
+                        Advance();
+                        bool closed = false;
+
+                        while (!IsAtEnd)
+                        {
+                            if (Peek() == '*' && PeekNext() == '/')
+                            {
+                                Advance();
+                                Advance();
+                                closed = true;
+                                break;
+                            }
+
+                            Advance();
+                        }
+
+                        if (!closed)
+                        {
+                            return MakeError("Unterminated block comment");
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+
+                    break;
+
+                default:
+                    return null;
+            }
+        }
+
+        return null;
     }
 
     private Token ScanIdentifierOrKeyword()
