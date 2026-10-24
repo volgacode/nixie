@@ -20,12 +20,90 @@ public class Lexer
 
     public Token NextToken()
     {
-        throw new NotImplementedException();
+        if (_faulted)
+        {
+            BeginToken();
+            return MakeToken(TokenType.Eof);
+        }
+
+        Token? skipError = SkipWhitespaceAndComments();
+
+        if (skipError.HasValue)
+        {
+            return skipError.Value;
+        }
+
+        BeginToken();
+
+        if (IsAtEnd)
+        {
+            return MakeToken(TokenType.Eof);
+        }
+
+        char c = Advance();
+
+        if (IsAsciiLetter(c) || c == '_')
+        {
+            return ScanIdentifierOrKeyword();
+        }
+
+        if (IsAsciiDigit(c))
+        {
+            return ScanNumber();
+        }
+
+        if (c == '"')
+        {
+            return ScanString();
+        }
+
+        return c switch
+        {
+            '=' => Match('=') ? MakeToken(TokenType.Equal) : MakeToken(TokenType.Assign),
+            '!' => Match('=') ? MakeToken(TokenType.NotEqual) : MakeToken(TokenType.Not),
+            '<' => Match('=') ? MakeToken(TokenType.LessOrEqual) : MakeToken(TokenType.Less),
+            '>' => Match('=') ? MakeToken(TokenType.GreaterOrEqual) : MakeToken(TokenType.Greater),
+            '&' => Match('&') ? MakeToken(TokenType.And) : MakeError("Unexpected character '&', expected '&&'"),
+            '|' => Match('|') ? MakeToken(TokenType.Or) : MakeError("Unexpected character '|', expected '||'"),
+            '+' => MakeToken(TokenType.Plus),
+            '-' => MakeToken(TokenType.Minus),
+            '*' => MakeToken(TokenType.Star),
+            '/' => MakeToken(TokenType.Slash),
+            '.' => MakeToken(TokenType.Dot),
+            '[' => MakeToken(TokenType.LBracket),
+            ']' => MakeToken(TokenType.RBracket),
+            '(' => MakeToken(TokenType.LParen),
+            ')' => MakeToken(TokenType.RParen),
+            '{' => MakeToken(TokenType.LBrace),
+            '}' => MakeToken(TokenType.RBrace),
+            ',' => MakeToken(TokenType.Comma),
+            ';' => MakeToken(TokenType.Semicolon),
+            _ => MakeError($"Unexpected character: '{c}'"),
+        };
     }
 
     public List<Token> TokenizeAll()
     {
-        throw new NotImplementedException();
+        List<Token> tokens = new();
+
+        while (true)
+        {
+            Token token = NextToken();
+            tokens.Add(token);
+
+            if (token.Type is TokenType.Eof or TokenType.Error)
+            {
+                break;
+            }
+        }
+
+        return tokens;
+    }
+
+    private void BeginToken()
+    {
+        _tokenStart = _position;
+        _tokenStartIndex = _index;
     }
 
     private char Peek()
