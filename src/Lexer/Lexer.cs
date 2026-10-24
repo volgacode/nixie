@@ -1,253 +1,96 @@
-﻿using System.Collections.Generic;
-
-namespace Nixie.Lexer;
+﻿namespace Nixie.Lexer;
 
 public class Lexer
 {
     private readonly string _source;
-    private int _cursor = 0;
-    private int _line = 1;
-    private int _column = 1;
+    private int _index;
+    private SourcePosition _position;
+    private SourcePosition _tokenStart;
+    private bool _faulted;
 
     public Lexer(string source)
     {
-        _source = source ?? string.Empty;
+        _source = source;
+        _index = 0;
+        _position = new SourcePosition(1, 1);
+        _tokenStart = _position;
+        _faulted = false;
     }
-
-    private bool IsAtEnd => _cursor >= _source.Length;
 
     public Token NextToken()
     {
-        SkipWhitespaceAndComments();
-
-        if (IsAtEnd)
-        {
-            return new Token(TokenType.Eof, string.Empty, new SourcePosition(_line, _column));
-        }
-
-        char c = Advance();
-
-        if (IsAsciiLetter(c) || c == '_')
-        {
-            return ScanIdentifierOrKeyword();
-        }
-
-        if (IsAsciiDigit(c))
-        {
-            return ScanNumber();
-        }
-
-        if (c == '"')
-        {
-            return ScanString();
-        }
-
-        return c switch
-        {
-            '=' => Match('=') ? MakeToken(TokenType.Equal, 2) : MakeToken(TokenType.Assign, 1),
-            '!' => Match('=') ? MakeToken(TokenType.NotEqual, 2) : MakeToken(TokenType.Not, 1),
-            '<' => Match('=') ? MakeToken(TokenType.LessOrEqual, 2) : MakeToken(TokenType.Less, 1),
-            '>' => Match('=') ? MakeToken(TokenType.GreaterOrEqual, 2) : MakeToken(TokenType.Greater, 1),
-            '&' => Match('&') ? MakeToken(TokenType.And, 2) : MakeError("Unexpected character '&', expected '&&'"),
-            '|' => Match('|') ? MakeToken(TokenType.Or, 2) : MakeError("Unexpected character '|', expected '||'"),
-            '+' => MakeToken(TokenType.Plus, 1),
-            '-' => MakeToken(TokenType.Minus, 1),
-            '*' => MakeToken(TokenType.Star, 1),
-            '/' => MakeToken(TokenType.Slash, 1),
-            '.' => MakeToken(TokenType.Dot, 1),
-            '[' => MakeToken(TokenType.LBracket, 1),
-            ']' => MakeToken(TokenType.RBracket, 1),
-            '(' => MakeToken(TokenType.LParen, 1),
-            ')' => MakeToken(TokenType.RParen, 1),
-            '{' => MakeToken(TokenType.LBrace, 1),
-            '}' => MakeToken(TokenType.RBrace, 1),
-            ',' => MakeToken(TokenType.Comma, 1),
-            ';' => MakeToken(TokenType.Semicolon, 1),
-            _ => MakeError($"Unexpected character: {c}"),
-        };
+        throw new NotImplementedException();
     }
 
     public List<Token> TokenizeAll()
     {
-        List<Token> tokens = new List<Token>();
-        while (true)
-        {
-            Token token = NextToken();
-            tokens.Add(token);
-            if (token.Type is TokenType.Eof or TokenType.Error)
-            {
-                break;
-            }
-        }
-
-        return tokens;
+        throw new NotImplementedException();
     }
 
-    private static bool IsAsciiLetter(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    private bool IsAtEnd => _index >= _source.Length;
 
-    private static bool IsAsciiDigit(char c) => c >= '0' && c <= '9';
+    private char Peek()
+    {
+        throw new NotImplementedException();
+    }
 
-    private static bool IsAsciiLetterOrDigit(char c) => IsAsciiLetter(c) || IsAsciiDigit(c);
-
-    private char Peek() => IsAtEnd ? '\0' : _source[_cursor];
-
-    private char PeekNext() => (_cursor + 1 >= _source.Length) ? '\0' : _source[_cursor + 1];
+    private char PeekNext()
+    {
+        throw new NotImplementedException();
+    }
 
     private char Advance()
     {
-        char current = Peek();
-        _cursor++;
-        if (current == '\n')
-        {
-            _line++;
-            _column = 1;
-        }
-        else
-        {
-            _column++;
-        }
-
-        return current;
+        throw new NotImplementedException();
     }
 
     private bool Match(char expected)
     {
-        if (IsAtEnd || _source[_cursor] != expected)
-        {
-            return false;
-        }
-
-        Advance();
-        return true;
+        throw new NotImplementedException();
     }
 
     private void SkipWhitespaceAndComments()
     {
-        while (!IsAtEnd)
-        {
-            char c = Peek();
-            switch (c)
-            {
-                case ' ':
-                case '\t':
-                case '\r':
-                case '\n':
-                case '\f':
-                    Advance();
-                    break;
-
-                case '/':
-                    if (PeekNext() == '/')
-                    {
-                        Advance();
-                        Advance();
-                        while (Peek() != '\n' && !IsAtEnd)
-                        {
-                            Advance();
-                        }
-                    }
-                    else if (PeekNext() == '*')
-                    {
-                        Advance();
-                        Advance();
-                        while (!IsAtEnd)
-                        {
-                            if (Peek() == '*' && PeekNext() == '/')
-                            {
-                                Advance();
-                                Advance();
-                                break;
-                            }
-
-                            Advance();
-                        }
-                    }
-                    else
-                    {
-                        return;
-                    }
-
-                    break;
-
-                default:
-                    return;
-            }
-        }
+        throw new NotImplementedException();
     }
 
     private Token ScanIdentifierOrKeyword()
     {
-        int start = _cursor - 1;
-        while (IsAsciiLetterOrDigit(Peek()) || Peek() == '_')
-        {
-            Advance();
-        }
-
-        string text = _source[start.._cursor];
-        TokenType kwType;
-        TokenType type = Keywords.TryGetKeyword(text, out kwType) ? kwType : TokenType.Identifier;
-
-        return new Token(type, text, new SourcePosition(_line, _column - text.Length));
+        throw new NotImplementedException();
     }
 
     private Token ScanNumber()
     {
-        int start = _cursor - 1;
-        while (IsAsciiDigit(Peek()))
-        {
-            Advance();
-        }
-
-        string text = _source[start.._cursor];
-        return new Token(TokenType.Number, text, new SourcePosition(_line, _column - text.Length));
+        throw new NotImplementedException();
     }
 
     private Token ScanString()
     {
-        int start = _cursor - 1;
-
-        while (!IsAtEnd)
-        {
-            char c = Peek();
-
-            if (c == '"')
-            {
-                Advance();
-                string lexeme = _source[start.._cursor];
-                return new Token(TokenType.StringValue, lexeme, new SourcePosition(_line, _column - lexeme.Length));
-            }
-
-            if (c == '\\')
-            {
-                Advance();
-                if (IsAtEnd)
-                {
-                    break;
-                }
-
-                char escaped = Advance();
-                if (escaped != '"' && escaped != '\\' && escaped != 'n' && escaped != 't' && escaped != 'r')
-                {
-                    return MakeError($"Unknown escape sequence: \\{escaped}");
-                }
-
-                continue;
-            }
-
-            Advance();
-        }
-
-        return MakeError("Unterminated string literal");
+        throw new NotImplementedException();
     }
 
-    private Token MakeToken(TokenType type, int length)
+    private Token MakeToken(TokenType type)
     {
-        string lexeme = _source[(_cursor - length).._cursor];
-        return new Token(type, lexeme, new SourcePosition(_line, _column - length));
+        throw new NotImplementedException();
     }
 
     private Token MakeError(string message)
     {
-        return new Token(TokenType.Error, string.Empty, new SourcePosition(_line, _column), message);
+        throw new NotImplementedException();
+    }
+
+    private static bool IsAsciiLetter(char c)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static bool IsAsciiDigit(char c)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static bool IsAsciiLetterOrDigit(char c)
+    {
+        throw new NotImplementedException();
     }
 }
