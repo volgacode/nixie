@@ -6,16 +6,17 @@ public class Lexer
     private int _index;
     private SourcePosition _position;
     private SourcePosition _tokenStart;
+    private int _tokenStartIndex;
     private bool _faulted;
 
     public Lexer(string source)
     {
         _source = source;
-        _index = 0;
         _position = new SourcePosition(1, 1);
         _tokenStart = _position;
-        _faulted = false;
     }
+
+    private bool IsAtEnd => _index >= _source.Length;
 
     public Token NextToken()
     {
@@ -27,11 +28,14 @@ public class Lexer
         throw new NotImplementedException();
     }
 
-    private bool IsAtEnd => _index >= _source.Length;
-
     private char Peek()
     {
-        throw new NotImplementedException();
+        if (IsAtEnd)
+        {
+            return '\0';
+        }
+
+        return _source[_index];
     }
 
     private char PeekNext()
@@ -41,12 +45,30 @@ public class Lexer
 
     private char Advance()
     {
-        throw new NotImplementedException();
+        char current = Peek();
+        _index++;
+
+        if (current == '\n')
+        {
+            _position = new SourcePosition(_position.Line + 1, 1);
+        }
+        else
+        {
+            _position = new SourcePosition(_position.Line, _position.Column + 1);
+        }
+
+        return current;
     }
 
     private bool Match(char expected)
     {
-        throw new NotImplementedException();
+        if (IsAtEnd || _source[_index] != expected)
+        {
+            return false;
+        }
+
+        Advance();
+        return true;
     }
 
     private void SkipWhitespaceAndComments()
@@ -56,12 +78,29 @@ public class Lexer
 
     private Token ScanIdentifierOrKeyword()
     {
-        throw new NotImplementedException();
+        while (IsAsciiLetterOrDigit(Peek()) || Peek() == '_')
+        {
+            Advance();
+        }
+
+        string text = _source.Substring(_tokenStartIndex, _index - _tokenStartIndex);
+
+        if (Keywords.TryGetKeyword(text, out TokenType keywordType))
+        {
+            return MakeToken(keywordType);
+        }
+
+        return MakeToken(TokenType.Identifier);
     }
 
     private Token ScanNumber()
     {
-        throw new NotImplementedException();
+        while (IsAsciiDigit(Peek()))
+        {
+            Advance();
+        }
+
+        return MakeToken(TokenType.Number);
     }
 
     private Token ScanString()
@@ -71,26 +110,28 @@ public class Lexer
 
     private Token MakeToken(TokenType type)
     {
-        throw new NotImplementedException();
+        string lexeme = _source.Substring(_tokenStartIndex, _index - _tokenStartIndex);
+        return new Token(type, lexeme, _tokenStart);
     }
 
     private Token MakeError(string message)
     {
-        throw new NotImplementedException();
+        _faulted = true;
+        return new Token(TokenType.Error, string.Empty, _tokenStart, message);
     }
 
     private static bool IsAsciiLetter(char c)
     {
-        throw new NotImplementedException();
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
 
     private static bool IsAsciiDigit(char c)
     {
-        throw new NotImplementedException();
+        return c >= '0' && c <= '9';
     }
 
     private static bool IsAsciiLetterOrDigit(char c)
     {
-        throw new NotImplementedException();
+        return IsAsciiLetter(c) || IsAsciiDigit(c);
     }
 }
