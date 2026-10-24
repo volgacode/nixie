@@ -169,6 +169,50 @@ public class Lexer
                 case '\f':
                     Advance();
                     break;
+
+                case '/':
+                    if (PeekNext() == '/')
+                    {
+                        Advance();
+                        Advance();
+
+                        while (!IsAtEnd && Peek() != '\n')
+                        {
+                            Advance();
+                        }
+                    }
+                    else if (PeekNext() == '*')
+                    {
+                        BeginToken();
+                        Advance();
+                        Advance();
+                        bool closed = false;
+
+                        while (!IsAtEnd)
+                        {
+                            if (Peek() == '*' && PeekNext() == '/')
+                            {
+                                Advance();
+                                Advance();
+                                closed = true;
+                                break;
+                            }
+
+                            Advance();
+                        }
+
+                        if (!closed)
+                        {
+                            return MakeError("Unterminated block comment");
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+
+                    break;
+
                 default:
                     return null;
             }
