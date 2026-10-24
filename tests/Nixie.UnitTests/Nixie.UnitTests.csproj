@@ -18,6 +18,6 @@
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Nixie.csproj" />
+		<ProjectReference Include="..\..\src\Lexer\Lexer.csproj" />
 	</ItemGroup>
 </Project>

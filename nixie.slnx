@@ -1,6 +1,6 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Nixie.csproj" />
+  <Folder Name="/src/Lexer/">
+    <Project Path="src/Lexer/Lexer.csproj" />
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/Nixie.UnitTests/">

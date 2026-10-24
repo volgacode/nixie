@@ -250,7 +250,44 @@ public class Lexer
 
     private Token ScanString()
     {
-        throw new NotImplementedException();
+        while (!IsAtEnd)
+        {
+            char c = Peek();
+
+            if (c == '"')
+            {
+                Advance();
+                return MakeToken(TokenType.StringValue);
+            }
+
+            if (c == '\n' || c == '\r')
+            {
+                return MakeError("Raw newline in string literal");
+            }
+
+            if (c == '\\')
+            {
+                Advance();
+
+                if (IsAtEnd)
+                {
+                    return MakeError("Unterminated string literal");
+                }
+
+                char escaped = Advance();
+
+                if (escaped != '"' && escaped != '\\' && escaped != 'n' && escaped != 't' && escaped != 'r')
+                {
+                    return MakeError($"Unknown escape sequence: '\\{escaped}'");
+                }
+
+                continue;
+            }
+
+            Advance();
+        }
+
+        return MakeError("Unterminated string literal");
     }
 
     private Token MakeToken(TokenType type)
