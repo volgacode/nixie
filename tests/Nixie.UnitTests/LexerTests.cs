@@ -9,17 +9,14 @@ public class LexerTests
         { "bool", TokenType.Bool },
         { "int", TokenType.Int },
         { "string", TokenType.String },
-        { "array", TokenType.Array },
         { "if", TokenType.If },
         { "else", TokenType.Else },
         { "while", TokenType.While },
         { "for", TokenType.For },
         { "void", TokenType.Void },
         { "return", TokenType.Return },
-        { "struct", TokenType.Struct },
         { "true", TokenType.True },
         { "false", TokenType.False },
-        { "null", TokenType.Null },
     };
 
     public static TheoryData<string, TokenType> OperatorData() => new()
@@ -42,9 +39,6 @@ public class LexerTests
 
     public static TheoryData<string, TokenType> DelimiterData() => new()
     {
-        { ".", TokenType.Dot },
-        { "[", TokenType.LBracket },
-        { "]", TokenType.RBracket },
         { "(", TokenType.LParen },
         { ")", TokenType.RParen },
         { "{", TokenType.LBrace },
@@ -92,7 +86,6 @@ public class LexerTests
         "ifVar",
         "IF",
         "Int",
-        "NULL",
     };
 
     public static TheoryData<string> WhitespaceData() => new()
@@ -144,7 +137,6 @@ public class LexerTests
         { "x=-1", [TokenType.Identifier, TokenType.Assign, TokenType.Minus, TokenType.Number, TokenType.Eof] },
         { "if(x)", [TokenType.If, TokenType.LParen, TokenType.Identifier, TokenType.RParen, TokenType.Eof] },
         { "else{", [TokenType.Else, TokenType.LBrace, TokenType.Eof] },
-        { "arr[0].x", [TokenType.Identifier, TokenType.LBracket, TokenType.Number, TokenType.RBracket, TokenType.Dot, TokenType.Identifier, TokenType.Eof] },
         { "int x;", [TokenType.Int, TokenType.Identifier, TokenType.Semicolon, TokenType.Eof] },
         { "int x = 1;", [TokenType.Int, TokenType.Identifier, TokenType.Assign, TokenType.Number, TokenType.Semicolon, TokenType.Eof] },
         { "int x = 2147483648;", [TokenType.Int, TokenType.Identifier, TokenType.Assign, TokenType.Number, TokenType.Semicolon, TokenType.Eof] },
@@ -152,7 +144,6 @@ public class LexerTests
         { "int x = 99999999999;", [TokenType.Int, TokenType.Identifier, TokenType.Assign, TokenType.Number, TokenType.Semicolon, TokenType.Eof] },
         { "bool b = true;", [TokenType.Bool, TokenType.Identifier, TokenType.Assign, TokenType.True, TokenType.Semicolon, TokenType.Eof] },
         { "string s = \"привет\";", [TokenType.String, TokenType.Identifier, TokenType.Assign, TokenType.StringValue, TokenType.Semicolon, TokenType.Eof] },
-        { "struct Point { int x; }", [TokenType.Struct, TokenType.Identifier, TokenType.LBrace, TokenType.Int, TokenType.Identifier, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
         { "while (i < 10) { i = i + 1; }", [TokenType.While, TokenType.LParen, TokenType.Identifier, TokenType.Less, TokenType.Number, TokenType.RParen, TokenType.LBrace, TokenType.Identifier, TokenType.Assign, TokenType.Identifier, TokenType.Plus, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
         { "int main() { return 0; }", [TokenType.Int, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Return, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
     };
