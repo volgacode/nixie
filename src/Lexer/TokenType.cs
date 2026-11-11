@@ -4,7 +4,6 @@ public enum TokenType
 {
     Bool,
     Int,
-    String,
     If,
     Else,
     While,

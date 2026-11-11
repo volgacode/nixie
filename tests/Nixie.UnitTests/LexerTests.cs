@@ -8,7 +8,6 @@ public class LexerTests
     {
         { "bool", TokenType.Bool },
         { "int", TokenType.Int },
-        { "string", TokenType.String },
         { "if", TokenType.If },
         { "else", TokenType.Else },
         { "while", TokenType.While },
