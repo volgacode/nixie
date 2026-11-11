@@ -26,7 +26,7 @@ public class Lexer
             return MakeToken(TokenType.Eof);
         }
 
-        Token? skipError = SkipWhitespaceAndComments();
+        Token? skipError = SkipWhitespace();
 
         if (skipError.HasValue)
         {
@@ -52,11 +52,6 @@ public class Lexer
             return ScanNumber();
         }
 
-        if (c == '"')
-        {
-            return ScanString();
-        }
-
         return c switch
         {
             '=' => Match('=') ? MakeToken(TokenType.Equal) : MakeToken(TokenType.Assign),
@@ -73,7 +68,6 @@ public class Lexer
             ')' => MakeToken(TokenType.RParen),
             '{' => MakeToken(TokenType.LBrace),
             '}' => MakeToken(TokenType.RBrace),
-            ',' => MakeToken(TokenType.Comma),
             ';' => MakeToken(TokenType.Semicolon),
             _ => MakeError($"Unexpected character: '{c}'"),
         };
@@ -113,16 +107,6 @@ public class Lexer
         return _source[_index];
     }
 
-    private char PeekNext()
-    {
-        if (_index + 1 >= _source.Length)
-        {
-            return '\0';
-        }
-
-        return _source[_index + 1];
-    }
-
     private char Advance()
     {
         char current = Peek();
@@ -151,7 +135,7 @@ public class Lexer
         return true;
     }
 
-    private Token? SkipWhitespaceAndComments()
+    private Token? SkipWhitespace()
     {
         while (!IsAtEnd)
         {
@@ -166,50 +150,6 @@ public class Lexer
                 case '\f':
                     Advance();
                     break;
-
-                case '/':
-                    if (PeekNext() == '/')
-                    {
-                        Advance();
-                        Advance();
-
-                        while (!IsAtEnd && Peek() != '\n')
-                        {
-                            Advance();
-                        }
-                    }
-                    else if (PeekNext() == '*')
-                    {
-                        BeginToken();
-                        Advance();
-                        Advance();
-                        bool closed = false;
-
-                        while (!IsAtEnd)
-                        {
-                            if (Peek() == '*' && PeekNext() == '/')
-                            {
-                                Advance();
-                                Advance();
-                                closed = true;
-                                break;
-                            }
-
-                            Advance();
-                        }
-
-                        if (!closed)
-                        {
-                            return MakeError("Unterminated block comment");
-                        }
-                    }
-                    else
-                    {
-                        return null;
-                    }
-
-                    break;
-
                 default:
                     return null;
             }
@@ -243,48 +183,6 @@ public class Lexer
         }
 
         return MakeToken(TokenType.Number);
-    }
-
-    private Token ScanString()
-    {
-        while (!IsAtEnd)
-        {
-            char c = Peek();
-
-            if (c == '"')
-            {
-                Advance();
-                return MakeToken(TokenType.StringValue);
-            }
-
-            if (c == '\n' || c == '\r')
-            {
-                return MakeError("Raw newline in string literal");
-            }
-
-            if (c == '\\')
-            {
-                Advance();
-
-                if (IsAtEnd)
-                {
-                    return MakeError("Unterminated string literal");
-                }
-
-                char escaped = Advance();
-
-                if (escaped != '"' && escaped != '\\' && escaped != 'n' && escaped != 't' && escaped != 'r')
-                {
-                    return MakeError($"Unknown escape sequence: '\\{escaped}'");
-                }
-
-                continue;
-            }
-
-            Advance();
-        }
-
-        return MakeError("Unterminated string literal");
     }
 
     private Token MakeToken(TokenType type)
