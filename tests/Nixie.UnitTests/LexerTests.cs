@@ -72,6 +72,12 @@ public class LexerTests
         "ifVar",
         "IF",
         "Int",
+        "read",
+        "abs",
+        "min",
+        "max",
+        "main",
+        "string",
     };
 
     public static TheoryData<string> WhitespaceData() => new()
@@ -112,9 +118,9 @@ public class LexerTests
         { "bool b = true;", [TokenType.Bool, TokenType.Identifier, TokenType.Assign, TokenType.True, TokenType.Semicolon, TokenType.Eof] },
         { "while (i < 10) { i = i + 1; }", [TokenType.While, TokenType.LParen, TokenType.Identifier, TokenType.Less, TokenType.Number, TokenType.RParen, TokenType.LBrace, TokenType.Identifier, TokenType.Assign, TokenType.Identifier, TokenType.Plus, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
         { "int main() { return 0; }", [TokenType.Int, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Return, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
-        { "bool main() { return 0; }", [TokenType.Bool, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Return, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
-        { "void main() { return 0; }", [TokenType.Void, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Return, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
         { "min(1, 2)", [TokenType.Identifier, TokenType.LParen, TokenType.Number, TokenType.Comma, TokenType.Number, TokenType.RParen, TokenType.Eof] },
+        { "int main() { print(min(1, 2)); }", [TokenType.Int, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Identifier, TokenType.LParen, TokenType.Identifier, TokenType.LParen, TokenType.Number, TokenType.Comma, TokenType.Number, TokenType.RParen, TokenType.RParen, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
+        { "a//b", [TokenType.Identifier, TokenType.Slash, TokenType.Slash, TokenType.Identifier, TokenType.Eof] },
     };
 
     public static TheoryData<string, TokenType[]> InvalidCharacterData() => new()
@@ -141,6 +147,13 @@ public class LexerTests
         { "abcй", [TokenType.Identifier, TokenType.Error] },
         { "\u0661\u0662\u0663", [TokenType.Error] },
         { "1\u0662", [TokenType.Number, TokenType.Error] },
+        { "\"", [TokenType.Error] },
+        { ".", [TokenType.Error] },
+        { "[", [TokenType.Error] },
+        { "]", [TokenType.Error] },
+        { "\"abc\"", [TokenType.Error] },
+        { "a.b", [TokenType.Identifier, TokenType.Error] },
+        { "arr[0]", [TokenType.Identifier, TokenType.Error] },
     };
 
     public static TheoryData<string, int, int, string> ErrorDetailsData() => new()
@@ -153,6 +166,9 @@ public class LexerTests
         { "x\n\nй", 3, 1, "Unexpected character" },
         { "a & b", 1, 3, "expected '&&'" },
         { "a | b", 1, 3, "expected '||'" },
+        { "\"abc\"", 1, 1, "Unexpected character" },
+        { "a.b", 1, 2, "Unexpected character" },
+        { "arr[0]", 1, 4, "Unexpected character" },
     };
 
     public static TheoryData<string, int, int> EofPositionData() => new()
