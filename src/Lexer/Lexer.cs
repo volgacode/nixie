@@ -13,29 +13,20 @@ public class Lexer
     {
         _source = source;
         _position = new SourcePosition(1, 1);
-        _tokenStart = _position;
     }
 
     private bool IsAtEnd => _index >= _source.Length;
 
     public Token NextToken()
     {
-        if (_faulted)
+        if (!_faulted)
         {
-            BeginToken();
-            return MakeToken(TokenType.Eof);
-        }
-
-        Token? skipError = SkipWhitespace();
-
-        if (skipError.HasValue)
-        {
-            return skipError.Value;
+            SkipWhitespace();
         }
 
         BeginToken();
 
-        if (IsAtEnd)
+        if (_faulted || IsAtEnd)
         {
             return MakeToken(TokenType.Eof);
         }
@@ -136,27 +127,17 @@ public class Lexer
         return true;
     }
 
-    private Token? SkipWhitespace()
+    private void SkipWhitespace()
     {
-        while (!IsAtEnd)
+        while (!IsAtEnd && IsWhitespace(Peek()))
         {
-            char c = Peek();
-
-            switch (c)
-            {
-                case ' ':
-                case '\t':
-                case '\r':
-                case '\n':
-                case '\f':
-                    Advance();
-                    break;
-                default:
-                    return null;
-            }
+            Advance();
         }
+    }
 
-        return null;
+    private static bool IsWhitespace(char c)
+    {
+        return c is ' ' or '\t' or '\r' or '\n' or '\f';
     }
 
     private Token ScanIdentifierOrKeyword()

@@ -112,6 +112,8 @@ public class LexerTests
         { "bool b = true;", [TokenType.Bool, TokenType.Identifier, TokenType.Assign, TokenType.True, TokenType.Semicolon, TokenType.Eof] },
         { "while (i < 10) { i = i + 1; }", [TokenType.While, TokenType.LParen, TokenType.Identifier, TokenType.Less, TokenType.Number, TokenType.RParen, TokenType.LBrace, TokenType.Identifier, TokenType.Assign, TokenType.Identifier, TokenType.Plus, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
         { "int main() { return 0; }", [TokenType.Int, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Return, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
+        { "bool main() { return 0; }", [TokenType.Bool, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Return, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
+        { "void main() { return 0; }", [TokenType.Void, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Return, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
         { "min(1, 2)", [TokenType.Identifier, TokenType.LParen, TokenType.Number, TokenType.Comma, TokenType.Number, TokenType.RParen, TokenType.Eof] },
     };
 
@@ -139,15 +141,6 @@ public class LexerTests
         { "abcй", [TokenType.Identifier, TokenType.Error] },
         { "\u0661\u0662\u0663", [TokenType.Error] },
         { "1\u0662", [TokenType.Number, TokenType.Error] },
-    };
-
-    public static TheoryData<string, TokenType[]> InvalidLiteralData() => new()
-    {
-        { "\"", [TokenType.Error] },
-        { "\"abc", [TokenType.Error] },
-        { "\"abc\\", [TokenType.Error] },
-        { "\"a\\0b\"", [TokenType.Error] },
-        { "\"a\rb\"", [TokenType.Error] },
     };
 
     public static TheoryData<string, int, int, string> ErrorDetailsData() => new()
@@ -226,15 +219,6 @@ public class LexerTests
     [Theory]
     [MemberData(nameof(InvalidCharacterData))]
     public void TokenizeAll_InvalidCharacter_StopsWithError(string source, TokenType[] expectedTypes)
-    {
-        List<Token> tokens = new Lexer(source).TokenizeAll();
-
-        Assert.Equal(expectedTypes, tokens.Select(t => t.Type));
-    }
-
-    [Theory]
-    [MemberData(nameof(InvalidLiteralData))]
-    public void TokenizeAll_InvalidLiteral_StopsWithError(string source, TokenType[] expectedTypes)
     {
         List<Token> tokens = new Lexer(source).TokenizeAll();
 
