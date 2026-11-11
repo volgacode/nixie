@@ -86,7 +86,7 @@ block = "{", { statement }, "}" ;
 
 statement = print_statement | expression_statement ;
 
-print_statement = "print(int)", "(", expression, ")", ";" ;
+print_statement = "print", "(", expression, ")", ";" ;
 
 expression_statement = expression, ";" ;
 
@@ -102,11 +102,11 @@ primary_expression = int_literal | "(", expression, ")" | builtin_call ;
 
 builtin_call = read_call | abs_call | min_max_call ;
 
-read_call = "read(int)", "(", ")" ;
+read_call = "read", "(", ")" ;
 
-abs_call = "abs(int)", "(", expression, ")" ;
+abs_call = "abs", "(", expression, ")" ;
 
-min_max_call = ( "min(int, int)" | "max(int, int)" ), "(", expression, ",", expression, ")" ;
+min_max_call = ( "min" | "max" ), "(", expression, ",", expression, ")" ;
 ```
 
 ### Приоритет и ассоциативность операторов
