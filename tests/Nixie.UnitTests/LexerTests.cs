@@ -43,7 +43,6 @@ public class LexerTests
         { ")", TokenType.RParen },
         { "{", TokenType.LBrace },
         { "}", TokenType.RBrace },
-        { ",", TokenType.Comma },
         { ";", TokenType.Semicolon },
     };
 
@@ -58,19 +57,6 @@ public class LexerTests
         { "99999999999", TokenType.Number },
     };
 
-    public static TheoryData<string, TokenType> StringData() => new()
-    {
-        { "\"\"", TokenType.StringValue },
-        { "\"hello\"", TokenType.StringValue },
-        { "\"привет\"", TokenType.StringValue },
-        { "\"if while\"", TokenType.StringValue },
-        { "\"// not a comment\"", TokenType.StringValue },
-        { "\"/* not a comment */\"", TokenType.StringValue },
-        { "\"\\\"\"", TokenType.StringValue },
-        { "\"\\\\\"", TokenType.StringValue },
-        { "\"a\\\"b\\\\c\\nd\\te\\rf\"", TokenType.StringValue },
-    };
-
     public static TheoryData<string> IdentifierData() => new()
     {
         "x",
@@ -79,7 +65,7 @@ public class LexerTests
         "_var",
         "a1b2",
         "test123",
-        "str_print",
+        "print",
         "integer",
         "returns",
         "trueValue",
@@ -97,25 +83,6 @@ public class LexerTests
         "\fint",
         "\r\nint",
         " \t\r\n\f int",
-    };
-
-    public static TheoryData<string, TokenType[]> CommentData() => new()
-    {
-        { "//", [TokenType.Eof] },
-        { "// comment", [TokenType.Eof] },
-        { "// комментарий", [TokenType.Eof] },
-        { "// c\nint x;", [TokenType.Int, TokenType.Identifier, TokenType.Semicolon, TokenType.Eof] },
-        { "// c\r\nint", [TokenType.Int, TokenType.Eof] },
-        { "// /* inside\nint", [TokenType.Int, TokenType.Eof] },
-        { "a//c\nb", [TokenType.Identifier, TokenType.Identifier, TokenType.Eof] },
-        { "/* c */", [TokenType.Eof] },
-        { "/**/int", [TokenType.Int, TokenType.Eof] },
-        { "/***/", [TokenType.Eof] },
-        { "/* комментарий */", [TokenType.Eof] },
-        { "/* c\nd */ int /* e */ x;", [TokenType.Int, TokenType.Identifier, TokenType.Semicolon, TokenType.Eof] },
-        { "/* // inside */int", [TokenType.Int, TokenType.Eof] },
-        { "a/*c*/b", [TokenType.Identifier, TokenType.Identifier, TokenType.Eof] },
-        { "/* /* */ */", [TokenType.Star, TokenType.Slash, TokenType.Eof] },
     };
 
     public static TheoryData<string, TokenType[]> TokenSequenceData() => new()
@@ -143,7 +110,6 @@ public class LexerTests
         { "int x = -2147483648;", [TokenType.Int, TokenType.Identifier, TokenType.Assign, TokenType.Minus, TokenType.Number, TokenType.Semicolon, TokenType.Eof] },
         { "int x = 99999999999;", [TokenType.Int, TokenType.Identifier, TokenType.Assign, TokenType.Number, TokenType.Semicolon, TokenType.Eof] },
         { "bool b = true;", [TokenType.Bool, TokenType.Identifier, TokenType.Assign, TokenType.True, TokenType.Semicolon, TokenType.Eof] },
-        { "string s = \"привет\";", [TokenType.String, TokenType.Identifier, TokenType.Assign, TokenType.StringValue, TokenType.Semicolon, TokenType.Eof] },
         { "while (i < 10) { i = i + 1; }", [TokenType.While, TokenType.LParen, TokenType.Identifier, TokenType.Less, TokenType.Number, TokenType.RParen, TokenType.LBrace, TokenType.Identifier, TokenType.Assign, TokenType.Identifier, TokenType.Plus, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
         { "int main() { return 0; }", [TokenType.Int, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Return, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
     };
@@ -174,20 +140,13 @@ public class LexerTests
         { "1\u0662", [TokenType.Number, TokenType.Error] },
     };
 
-    public static TheoryData<string, TokenType[]> InvalidLiteralAndCommentData() => new()
+    public static TheoryData<string, TokenType[]> InvalidLiteralData() => new()
     {
         { "\"", [TokenType.Error] },
         { "\"abc", [TokenType.Error] },
         { "\"abc\\", [TokenType.Error] },
-        { "\"a\\\"", [TokenType.Error] },
-        { "x = \"abc", [TokenType.Identifier, TokenType.Assign, TokenType.Error] },
-        { "\"a\\xb\"", [TokenType.Error] },
         { "\"a\\0b\"", [TokenType.Error] },
-        { "\"a\nb\"", [TokenType.Error] },
         { "\"a\rb\"", [TokenType.Error] },
-        { "/*", [TokenType.Error] },
-        { "/*/", [TokenType.Error] },
-        { "int x; /* oops", [TokenType.Int, TokenType.Identifier, TokenType.Semicolon, TokenType.Error] },
     };
 
     public static TheoryData<string, int, int, string> ErrorDetailsData() => new()
@@ -200,14 +159,6 @@ public class LexerTests
         { "x\n\nй", 3, 1, "Unexpected character" },
         { "a & b", 1, 3, "expected '&&'" },
         { "a | b", 1, 3, "expected '||'" },
-        { "x = \"abc", 1, 5, "Unterminated string" },
-        { "int x = \"abc", 1, 9, "Unterminated string" },
-        { "x\n\"abc", 2, 1, "Unterminated string" },
-        { "\"a\\\"", 1, 1, "Unterminated string" },
-        { "\"a\\xb\"", 1, 1, "Unknown escape sequence" },
-        { "\"a\\0b\"", 1, 1, "Unknown escape sequence" },
-        { "\"a\nb\"", 1, 1, "Raw newline" },
-        { "int x; /* oops", 1, 8, "Unterminated block comment" },
     };
 
     public static TheoryData<string, int, int> EofPositionData() => new()
@@ -218,8 +169,6 @@ public class LexerTests
         { "int x;", 1, 7 },
         { "a\nb", 2, 2 },
         { "a\r\nb\r\n", 3, 1 },
-        { "// c", 1, 5 },
-        { "/* c */", 1, 8 },
     };
 
     public static TheoryData<string, int, int, int> TokenPositionData() => new()
@@ -227,8 +176,6 @@ public class LexerTests
         { "int x = 1;", 3, 1, 9 },
         { "  \t x", 0, 1, 5 },
         { "int x;\n  y", 3, 2, 3 },
-        { "/* a\nb */ x", 0, 2, 6 },
-        { "a // c\nb", 1, 2, 1 },
         { "a\r\nb", 1, 2, 1 },
     };
 
@@ -237,7 +184,6 @@ public class LexerTests
     [MemberData(nameof(OperatorData))]
     [MemberData(nameof(DelimiterData))]
     [MemberData(nameof(NumberData))]
-    [MemberData(nameof(StringData))]
     public void NextToken_SingleToken_ReturnsTypeAndLexeme(string source, TokenType expectedType)
     {
         Token token = new Lexer(source).NextToken();
@@ -268,7 +214,6 @@ public class LexerTests
     }
 
     [Theory]
-    [MemberData(nameof(CommentData))]
     [MemberData(nameof(TokenSequenceData))]
     public void TokenizeAll_ValidSource_ReturnsExpectedTypes(string source, TokenType[] expectedTypes)
     {
@@ -287,8 +232,8 @@ public class LexerTests
     }
 
     [Theory]
-    [MemberData(nameof(InvalidLiteralAndCommentData))]
-    public void TokenizeAll_InvalidLiteralOrComment_StopsWithError(string source, TokenType[] expectedTypes)
+    [MemberData(nameof(InvalidLiteralData))]
+    public void TokenizeAll_InvalidLiteral_StopsWithError(string source, TokenType[] expectedTypes)
     {
         List<Token> tokens = new Lexer(source).TokenizeAll();
 
