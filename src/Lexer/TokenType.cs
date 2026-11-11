@@ -4,7 +4,6 @@ public enum TokenType
 {
     Bool,
     Int,
-    String,
     If,
     Else,
     While,
@@ -33,6 +32,7 @@ public enum TokenType
     RParen,
     LBrace,
     RBrace,
+    Comma,
     Semicolon,
     Eof,
     Error,

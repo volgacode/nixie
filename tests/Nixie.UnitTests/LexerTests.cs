@@ -8,7 +8,6 @@ public class LexerTests
     {
         { "bool", TokenType.Bool },
         { "int", TokenType.Int },
-        { "string", TokenType.String },
         { "if", TokenType.If },
         { "else", TokenType.Else },
         { "while", TokenType.While },
@@ -43,6 +42,7 @@ public class LexerTests
         { ")", TokenType.RParen },
         { "{", TokenType.LBrace },
         { "}", TokenType.RBrace },
+        { ",", TokenType.Comma },
         { ";", TokenType.Semicolon },
     };
 
@@ -112,6 +112,7 @@ public class LexerTests
         { "bool b = true;", [TokenType.Bool, TokenType.Identifier, TokenType.Assign, TokenType.True, TokenType.Semicolon, TokenType.Eof] },
         { "while (i < 10) { i = i + 1; }", [TokenType.While, TokenType.LParen, TokenType.Identifier, TokenType.Less, TokenType.Number, TokenType.RParen, TokenType.LBrace, TokenType.Identifier, TokenType.Assign, TokenType.Identifier, TokenType.Plus, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
         { "int main() { return 0; }", [TokenType.Int, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Return, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
+        { "min(1, 2)", [TokenType.Identifier, TokenType.LParen, TokenType.Number, TokenType.Comma, TokenType.Number, TokenType.RParen, TokenType.Eof] },
     };
 
     public static TheoryData<string, TokenType[]> InvalidCharacterData() => new()

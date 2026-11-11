@@ -68,6 +68,7 @@ public class Lexer
             ')' => MakeToken(TokenType.RParen),
             '{' => MakeToken(TokenType.LBrace),
             '}' => MakeToken(TokenType.RBrace),
+            ',' => MakeToken(TokenType.Comma),
             ';' => MakeToken(TokenType.Semicolon),
             _ => MakeError($"Unexpected character: '{c}'"),
         };
