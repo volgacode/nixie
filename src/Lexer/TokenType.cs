@@ -32,6 +32,7 @@ public enum TokenType
     RParen,
     LBrace,
     RBrace,
+    Comma,
     Semicolon,
     Eof,
     Error,
