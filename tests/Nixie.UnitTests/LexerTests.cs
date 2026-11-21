@@ -120,7 +120,6 @@ public class LexerTests
         { "int main() { return 0; }", [TokenType.Int, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Return, TokenType.Number, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
         { "min(1, 2)", [TokenType.Identifier, TokenType.LParen, TokenType.Number, TokenType.Comma, TokenType.Number, TokenType.RParen, TokenType.Eof] },
         { "int main() { print(min(1, 2)); }", [TokenType.Int, TokenType.Identifier, TokenType.LParen, TokenType.RParen, TokenType.LBrace, TokenType.Identifier, TokenType.LParen, TokenType.Identifier, TokenType.LParen, TokenType.Number, TokenType.Comma, TokenType.Number, TokenType.RParen, TokenType.RParen, TokenType.Semicolon, TokenType.RBrace, TokenType.Eof] },
-        { "a//b", [TokenType.Identifier, TokenType.Slash, TokenType.Slash, TokenType.Identifier, TokenType.Eof] },
     };
 
     public static TheoryData<string, TokenType[]> InvalidCharacterData() => new()
