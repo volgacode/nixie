@@ -19,14 +19,16 @@ public class Lexer
 
     public Token NextToken()
     {
-        if (!_faulted)
+        if (_faulted)
         {
-            SkipWhitespace();
+            BeginToken();
+            return MakeToken(TokenType.Eof);
         }
 
+        SkipWhitespace();
         BeginToken();
 
-        if (_faulted || IsAtEnd)
+        if (IsAtEnd)
         {
             return MakeToken(TokenType.Eof);
         }
@@ -61,7 +63,7 @@ public class Lexer
             '}' => MakeToken(TokenType.RBrace),
             ',' => MakeToken(TokenType.Comma),
             ';' => MakeToken(TokenType.Semicolon),
-            _ => MakeError($"Unexpected character: '{c}'"),
+            _ => MakeUnexpectedCharacterError(c),
         };
     }
 
@@ -147,9 +149,7 @@ public class Lexer
             Advance();
         }
 
-        string text = _source.Substring(_tokenStartIndex, _index - _tokenStartIndex);
-
-        if (Keywords.TryGetKeyword(text, out TokenType keywordType))
+        if (Keywords.TryGetKeyword(CurrentLexeme(), out TokenType keywordType))
         {
             return MakeToken(keywordType);
         }
@@ -167,16 +167,30 @@ public class Lexer
         return MakeToken(TokenType.Number);
     }
 
+    private string CurrentLexeme()
+    {
+        return _source.Substring(_tokenStartIndex, _index - _tokenStartIndex);
+    }
+
     private Token MakeToken(TokenType type)
     {
-        string lexeme = _source.Substring(_tokenStartIndex, _index - _tokenStartIndex);
-        return new Token(type, lexeme, _tokenStart);
+        return new Token(type, CurrentLexeme(), _tokenStart);
+    }
+
+    private Token MakeUnexpectedCharacterError(char first)
+    {
+        if (char.IsHighSurrogate(first) && char.IsLowSurrogate(Peek()))
+        {
+            Advance();
+        }
+
+        return MakeError($"Unexpected character '{CurrentLexeme()}'");
     }
 
     private Token MakeError(string message)
     {
         _faulted = true;
-        return new Token(TokenType.Error, string.Empty, _tokenStart, message);
+        return new Token(TokenType.Error, CurrentLexeme(), _tokenStart, message);
     }
 
     private static bool IsAsciiLetter(char c)
