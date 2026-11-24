@@ -188,6 +188,12 @@ public class LexerTests
         { "a\r\nb", 1, 2, 1 },
     };
 
+    public static TheoryData<string> ExhaustedSourceData() => new()
+    {
+        "a",
+        "@ int",
+    };
+
     [Theory]
     [MemberData(nameof(KeywordData))]
     [MemberData(nameof(OperatorData))]
@@ -272,21 +278,11 @@ public class LexerTests
         Assert.Equal(column, token.Position.Column);
     }
 
-    [Fact]
-    public void NextToken_AfterEof_KeepsReturningEof()
+    [Theory]
+    [MemberData(nameof(ExhaustedSourceData))]
+    public void NextToken_AfterEofOrError_ReturnsEof(string source)
     {
-        Lexer lexer = new Lexer("a");
-        lexer.TokenizeAll();
-
-        Token token = lexer.NextToken();
-
-        Assert.Equal(TokenType.Eof, token.Type);
-    }
-
-    [Fact]
-    public void NextToken_AfterError_ReturnsEof()
-    {
-        Lexer lexer = new Lexer("@ int");
+        Lexer lexer = new Lexer(source);
         lexer.TokenizeAll();
 
         Token token = lexer.NextToken();
