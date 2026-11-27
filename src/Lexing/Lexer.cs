@@ -1,21 +1,14 @@
-﻿namespace Nixie.Lexer;
+﻿namespace Lexing;
 
-public class Lexer
+public class Lexer(string source)
 {
-    private readonly string _source;
     private int _index;
-    private SourcePosition _position;
+    private SourcePosition _position = new(1, 1);
     private SourcePosition _tokenStart;
     private int _tokenStartIndex;
     private bool _faulted;
 
-    public Lexer(string source)
-    {
-        _source = source;
-        _position = new SourcePosition(1, 1);
-    }
-
-    private bool IsAtEnd => _index >= _source.Length;
+    private bool IsAtEnd => _index >= source.Length;
 
     public Token NextToken()
     {
@@ -25,7 +18,7 @@ public class Lexer
             return MakeToken(TokenType.Eof);
         }
 
-        SkipWhitespace();
+        SkipTrivia();
         BeginToken();
 
         if (IsAtEnd)
@@ -61,8 +54,12 @@ public class Lexer
             ')' => MakeToken(TokenType.RParen),
             '{' => MakeToken(TokenType.LBrace),
             '}' => MakeToken(TokenType.RBrace),
+            '[' => MakeToken(TokenType.LBracket),
+            ']' => MakeToken(TokenType.RBracket),
+            '.' => MakeToken(TokenType.Dot),
             ',' => MakeToken(TokenType.Comma),
             ';' => MakeToken(TokenType.Semicolon),
+            '"' => ScanString(),
             _ => MakeUnexpectedCharacterError(c),
         };
     }
@@ -91,14 +88,16 @@ public class Lexer
         _tokenStartIndex = _index;
     }
 
-    private char Peek()
+    private char Peek(int offset = 0)
     {
-        if (IsAtEnd)
+        int index = _index + offset;
+
+        if (index >= source.Length)
         {
             return '\0';
         }
 
-        return _source[_index];
+        return source[index];
     }
 
     private char Advance()
@@ -106,7 +105,7 @@ public class Lexer
         char current = Peek();
         _index++;
 
-        if (current == '\n')
+        if (current == '\n' || (current == '\r' && Peek() != '\n'))
         {
             _position = new SourcePosition(_position.Line + 1, 1);
         }
@@ -120,7 +119,7 @@ public class Lexer
 
     private bool Match(char expected)
     {
-        if (IsAtEnd || _source[_index] != expected)
+        if (IsAtEnd || source[_index] != expected)
         {
             return false;
         }
@@ -129,9 +128,28 @@ public class Lexer
         return true;
     }
 
-    private void SkipWhitespace()
+    private void SkipTrivia()
     {
-        while (!IsAtEnd && IsWhitespace(Peek()))
+        while (!IsAtEnd)
+        {
+            if (IsWhitespace(Peek()))
+            {
+                Advance();
+            }
+            else if (Peek() == '/' && Peek(1) == '/')
+            {
+                SkipLineComment();
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    private void SkipLineComment()
+    {
+        while (!IsAtEnd && Peek() is not ('\r' or '\n'))
         {
             Advance();
         }
@@ -149,12 +167,14 @@ public class Lexer
             Advance();
         }
 
-        if (Keywords.TryGetKeyword(CurrentLexeme(), out TokenType keywordType))
+        string lexeme = CurrentLexeme();
+
+        if (Keywords.TryGetKeyword(lexeme, out TokenType keywordType))
         {
-            return MakeToken(keywordType);
+            return new Token(keywordType, lexeme, _tokenStart);
         }
 
-        return MakeToken(TokenType.Identifier);
+        return new Token(TokenType.Identifier, lexeme, _tokenStart);
     }
 
     private Token ScanNumber()
@@ -167,9 +187,41 @@ public class Lexer
         return MakeToken(TokenType.Number);
     }
 
+    private Token ScanString()
+    {
+        while (!IsAtEnd)
+        {
+            char c = Advance();
+            if (c == '"')
+            {
+                return MakeToken(TokenType.StringLiteral);
+            }
+
+            if (c is '\r' or '\n')
+            {
+                return MakeError("Newline in string literal");
+            }
+
+            if (c == '\\')
+            {
+                if (IsAtEnd)
+                {
+                    return MakeError("Unterminated escape sequence in string literal");
+                }
+
+                if (Advance() is not ('"' or '\\' or 'n' or 'r' or 't'))
+                {
+                    return MakeError("Invalid escape sequence in string literal");
+                }
+            }
+        }
+
+        return MakeError("Unterminated string literal");
+    }
+
     private string CurrentLexeme()
     {
-        return _source.Substring(_tokenStartIndex, _index - _tokenStartIndex);
+        return source.Substring(_tokenStartIndex, _index - _tokenStartIndex);
     }
 
     private Token MakeToken(TokenType type)

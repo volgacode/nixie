@@ -1,9 +1,8 @@
 <Solution>
-  <Folder Name="/src/Lexer/">
-    <Project Path="src/Lexer/Lexer.csproj" />
+  <Folder Name="/src/Lexing/">
+    <Project Path="src/Lexing/Lexing.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
-  <Folder Name="/tests/Nixie.UnitTests/">
-    <Project Path="tests/Nixie.UnitTests/Nixie.UnitTests.csproj" />
+  <Folder Name="/tests/LexingTests/">
+    <Project Path="tests/LexingTests/LexingTests.csproj" />
   </Folder>
 </Solution>

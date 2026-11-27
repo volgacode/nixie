@@ -1,4 +1,4 @@
-﻿namespace Nixie.Lexing;
+﻿namespace Lexing;
 
 public static class Keywords
 {

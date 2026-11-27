@@ -18,6 +18,6 @@
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Lexer\Lexer.csproj" />
+		<ProjectReference Include="..\..\src\Lexing\Lexing.csproj" />
 	</ItemGroup>
 </Project>
