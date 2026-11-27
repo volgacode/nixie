@@ -1,9 +1,16 @@
-﻿namespace Nixie.Lexer;
+﻿namespace Lexing;
 
 public enum TokenType
 {
     Bool,
     Int,
+    String,
+    StringLiteral,
+    Array,
+    Struct,
+    LBracket,
+    RBracket,
+    Dot,
     If,
     Else,
     While,

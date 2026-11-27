@@ -1,4 +1,4 @@
-﻿namespace Nixie.Lexer;
+﻿namespace Lexing;
 
 public readonly record struct Token(
     TokenType Type,

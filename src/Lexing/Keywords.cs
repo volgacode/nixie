@@ -1,4 +1,4 @@
-﻿namespace Nixie.Lexer;
+﻿namespace Lexing;
 
 public static class Keywords
 {
@@ -6,6 +6,9 @@ public static class Keywords
     {
         { "bool", TokenType.Bool },
         { "int", TokenType.Int },
+        { "string", TokenType.String },
+        { "array", TokenType.Array },
+        { "struct", TokenType.Struct },
         { "if", TokenType.If },
         { "else", TokenType.Else },
         { "while", TokenType.While },
